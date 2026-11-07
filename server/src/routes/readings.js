@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db');
 const requireAuth = require('../middleware/auth');
 const { HttpError } = require('../middleware/errorHandler');
+const { validateReadingInput, checkDayRules } = require('../validation/readingValidation');
 
 const router = express.Router();
 
@@ -15,6 +16,17 @@ const ORDER_BY = `
 `;
 
 const COLUMNS = 'id, reading_date AS date, slot, value, created_at, updated_at';
+
+// Runs all validation rules and throws a 400 with a friendly message if one fails
+async function validateReading(body, userId, excludeId = null) {
+  const { error, data } = validateReadingInput(body);
+  if (error) throw new HttpError(400, error);
+
+  const dayError = await checkDayRules(userId, data.date, data.slot, excludeId);
+  if (dayError) throw new HttpError(400, dayError);
+
+  return data;
+}
 
 function parseId(rawId) {
   const id = Number(rawId);
@@ -33,7 +45,7 @@ router.get('/', async (req, res) => {
 
 // POST /api/readings
 router.post('/', async (req, res) => {
-  const { date, slot, value } = req.body;
+  const { date, slot, value } = await validateReading(req.body, req.user.id);
 
   const result = await db.query(
     `INSERT INTO readings (user_id, reading_date, slot, value)
@@ -47,7 +59,15 @@ router.post('/', async (req, res) => {
 // PUT /api/readings/:id
 router.put('/:id', async (req, res) => {
   const id = parseId(req.params.id);
-  const { date, slot, value } = req.body;
+
+  // Check the reading exists and belongs to this user before validating
+  const existing = await db.query('SELECT id FROM readings WHERE id = $1 AND user_id = $2', [
+    id,
+    req.user.id,
+  ]);
+  if (existing.rows.length === 0) throw new HttpError(404, 'Reading not found.');
+
+  const { date, slot, value } = await validateReading(req.body, req.user.id, id);
 
   // "AND user_id = $5" makes sure users can only edit their own readings
   const result = await db.query(
