@@ -153,6 +153,54 @@ select:focus {
   border-radius: 6px;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tables */
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+td.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+td.actions .btn-link + .btn-link {
+  margin-left: 12px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 24px 0;
+}
+
 /* Login / Register */
 .auth-page {
   min-height: 100vh;
