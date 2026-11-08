@@ -38,4 +38,13 @@ function getReportRange(type, date) {
   throw new Error(`Unknown report type: ${type}`);
 }
 
-module.exports = { REPORT_TYPES, getReportRange, daysInMonth };
+// The whole calendar month of a date: '2026-10-15' -> 1 Oct - 31 Oct (used by the chart)
+function getMonthRange(date) {
+  const [year, month] = date.split('-').map(Number);
+  return {
+    from: `${year}-${pad(month)}-01`,
+    to: `${year}-${pad(month)}-${pad(daysInMonth(year, month))}`,
+  };
+}
+
+module.exports = { REPORT_TYPES, getReportRange, getMonthRange, daysInMonth };

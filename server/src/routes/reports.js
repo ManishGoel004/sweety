@@ -2,7 +2,7 @@ const express = require('express');
 const db = require('../db');
 const requireAuth = require('../middleware/auth');
 const { HttpError } = require('../middleware/errorHandler');
-const { REPORT_TYPES, getReportRange } = require('../utils/dateRanges');
+const { REPORT_TYPES, getReportRange, getMonthRange } = require('../utils/dateRanges');
 const { todayString, isValidDateString } = require('../utils/dates');
 
 const router = express.Router();
@@ -55,6 +55,25 @@ router.get('/', async (req, res) => {
   }
 
   res.json(report);
+});
+
+// GET /api/reports/chart?date=YYYY-MM-DD
+// All readings in the calendar month of the date, for the line chart
+router.get('/chart', async (req, res) => {
+  const date = req.query.date || todayString();
+  if (!isValidDateString(date)) {
+    throw new HttpError(400, 'Please select a valid date.');
+  }
+
+  const { from, to } = getMonthRange(date);
+  const result = await db.query(
+    `SELECT reading_date AS date, slot, value FROM readings
+     WHERE user_id = $1 AND reading_date BETWEEN $2 AND $3
+     ORDER BY reading_date`,
+    [req.user.id, from, to]
+  );
+
+  res.json({ range: { from, to }, readings: result.rows });
 });
 
 module.exports = router;

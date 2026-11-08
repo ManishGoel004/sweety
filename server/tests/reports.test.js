@@ -81,6 +81,18 @@ test('report only includes the logged-in user readings', async () => {
   expect(res.body.count).toBe(0);
 });
 
+test('chart data: every reading in the calendar month of the date', async () => {
+  const res = await request(app)
+    .get('/api/reports/chart?date=2026-10-15')
+    .set('Authorization', `Bearer ${token}`);
+
+  expect(res.status).toBe(200);
+  expect(res.body.range).toEqual({ from: '2026-10-01', to: '2026-10-31' });
+  // the whole month, including 20 Oct which is after the selected date
+  expect(res.body.readings).toHaveLength(5);
+  expect(res.body.readings[0]).toEqual({ date: '2026-10-01', slot: 'morning_fasting', value: 100 });
+});
+
 test('rejects an unknown report type', async () => {
   const res = await getReport('yearly', '2026-10-15');
   expect(res.status).toBe(400);

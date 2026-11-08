@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { getErrorMessage } from '../api';
 import StatsCard from '../components/StatsCard';
+import MonthChart from '../components/MonthChart';
 import { SLOTS } from '../constants';
 import { formatDate, todayString } from '../utils';
 
@@ -44,69 +45,74 @@ export default function Reports() {
   }, [type, date]);
 
   return (
-    <section className="card">
-      <h2>Reports</h2>
+    <>
+      <section className="card">
+        <h2>Reports</h2>
 
-      <div className="report-controls">
-        <div className="tabs" role="tablist">
-          {REPORT_TYPES.map((t) => (
-            <button
-              key={t.key}
-              role="tab"
-              aria-selected={type === t.key}
-              className={type === t.key ? 'tab active' : 'tab'}
-              onClick={() => setType(t.key)}
-            >
-              {t.label}
-            </button>
-          ))}
+        <div className="report-controls">
+          <div className="tabs" role="tablist">
+            {REPORT_TYPES.map((t) => (
+              <button
+                key={t.key}
+                role="tab"
+                aria-selected={type === t.key}
+                className={type === t.key ? 'tab active' : 'tab'}
+                onClick={() => setType(t.key)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <div>
+            <label htmlFor="report-date">Selected date</label>
+            <input id="report-date" type="date" value={date} max={todayString()} onChange={(e) => setDate(e.target.value)} />
+          </div>
         </div>
-        <div>
-          <label htmlFor="report-date">Selected date</label>
-          <input id="report-date" type="date" value={date} max={todayString()} onChange={(e) => setDate(e.target.value)} />
-        </div>
-      </div>
 
-      {error && <p className="error" role="alert">{error}</p>}
+        {error && <p className="error" role="alert">{error}</p>}
 
-      {report && (
-        <>
-          <p className="muted">Showing {rangeText(report.range)}</p>
+        {report && (
+          <>
+            <p className="muted">Showing {rangeText(report.range)}</p>
 
-          {report.count === 0 ? (
-            <div className="empty">
-              <p>No readings for this period yet. 📭</p>
-              <Link to="/readings">Add a reading</Link>
-            </div>
-          ) : (
-            <>
-              <StatsCard report={report} />
+            {report.count === 0 ? (
+              <div className="empty">
+                <p>No readings for this period yet. 📭</p>
+                <Link to="/readings">Add a reading</Link>
+              </div>
+            ) : (
+              <>
+                <StatsCard report={report} />
 
-              {report.readings && (
-                <>
-                  <h3>Readings on {formatDate(report.range.from)}</h3>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Time slot</th>
-                        <th>Value (mg/dl)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {report.readings.map((r) => (
-                        <tr key={r.id}>
-                          <td>{SLOTS[r.slot]}</td>
-                          <td>{r.value}</td>
+                {report.readings && (
+                  <>
+                    <h3>Readings on {formatDate(report.range.from)}</h3>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Time slot</th>
+                          <th>Value (mg/dl)</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-            </>
-          )}
-        </>
-      )}
-    </section>
+                      </thead>
+                      <tbody>
+                        {report.readings.map((r) => (
+                          <tr key={r.id}>
+                            <td>{SLOTS[r.slot]}</td>
+                            <td>{r.value}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </section>
+
+      {/* Line chart for the month of the selected date */}
+      {date && <MonthChart date={date} />}
+    </>
   );
 }

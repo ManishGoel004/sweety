@@ -1,4 +1,9 @@
-const { getReportRange, daysInMonth } = require('../src/utils/dateRanges');
+const { getReportRange, getMonthRange, daysInMonth } = require('../src/utils/dateRanges');
+
+test('getMonthRange gives the whole calendar month', () => {
+  expect(getMonthRange('2026-10-15')).toEqual({ from: '2026-10-01', to: '2026-10-31' });
+  expect(getMonthRange('2028-02-03')).toEqual({ from: '2028-02-01', to: '2028-02-29' });
+});
 
 describe('getReportRange - examples from the assignment (selected date 15 Oct 2026)', () => {
   test('daily is the selected date', () => {

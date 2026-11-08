@@ -279,6 +279,11 @@ td.actions .btn-link + .btn-link {
   }
 }
 
+.chart-note {
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+
 /* Login / Register */
 .auth-page {
   min-height: 100vh;
