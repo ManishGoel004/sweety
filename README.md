@@ -192,7 +192,7 @@ sweety/
 ## Notes
 
 ### Assumptions
-- **Dates are calendar days.** A reading's date is stored as a PostgreSQL `DATE` (no time or timezone). "Today", used for the future-date rule, is the server's local date.
+- **Dates are calendar days.** A reading's date is stored as a PostgreSQL `DATE` (no time or timezone). "Today", used for the future-date rule, is the server's local date. In Docker the server's timezone is set with `TZ` (default `Asia/Kolkata`; override with e.g. `TZ=Europe/London docker compose up`), because containers otherwise run in UTC.
 - **"Monthly" means the whole previous calendar month**, as in the assignment's example. Month-to-date covers the 1st of the current month up to the selected date.
 - **When a day is already full (4 readings)**, a 5th attempt shows *"You can add only 4 readings per day."* rather than the duplicate-slot message. The max-4 check runs first.
 - **Editing a reading** doesn't count against itself: you can change the value of a reading on a full day, but you can't move it into a slot that's already taken.
