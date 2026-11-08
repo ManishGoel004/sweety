@@ -27,8 +27,21 @@ Sweety is a small web app where a diabetes patient records up to 4 blood glucose
 
 ## Screenshots
 
-<!-- Added before submission -->
-_Screenshots / screen recording: see the `screenshots/` folder._
+| Login | Readings (badges, pagination, CSV export) |
+|---|---|
+| ![Login](screenshots/1-login.png) | ![Readings](screenshots/2-readings.png) |
+
+| Validation error | Daily report |
+|---|---|
+| ![Validation error](screenshots/3-validation-error.png) | ![Daily report](screenshots/4-report-daily.png) |
+
+| Monthly report (previous month) | Empty state |
+|---|---|
+| ![Monthly report](screenshots/5-report-monthly.png) | ![Empty state](screenshots/6-report-empty.png) |
+
+**Monthly line chart**
+
+![Monthly chart](screenshots/7-chart.png)
 
 ---
 
