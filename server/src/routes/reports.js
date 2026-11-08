@@ -4,6 +4,7 @@ const requireAuth = require('../middleware/auth');
 const { HttpError } = require('../middleware/errorHandler');
 const { REPORT_TYPES, getReportRange, getMonthRange } = require('../utils/dateRanges');
 const { todayString, isValidDateString } = require('../utils/dates');
+const { TARGET_LOW, TARGET_HIGH } = require('../constants');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -26,12 +27,13 @@ router.get('/', async (req, res) => {
     `SELECT COUNT(*)::int                  AS count,
             MAX(value)                     AS highest,
             MIN(value)                     AS lowest,
-            ROUND(AVG(value)::numeric, 1)  AS average
+            ROUND(AVG(value)::numeric, 1)  AS average,
+            COUNT(*) FILTER (WHERE value BETWEEN $4 AND $5)::int AS in_range
      FROM readings
      WHERE user_id = $1 AND reading_date BETWEEN $2 AND $3`,
-    [req.user.id, from, to]
+    [req.user.id, from, to, TARGET_LOW, TARGET_HIGH]
   );
-  const { count, highest, lowest, average } = stats.rows[0];
+  const { count, highest, lowest, average, in_range: inRange } = stats.rows[0];
 
   const report = {
     type,
@@ -41,6 +43,8 @@ router.get('/', async (req, res) => {
     lowest,
     // PostgreSQL returns NUMERIC as a string ("123.5"), so convert it to a number
     average: average === null ? null : Number(average),
+    // Extra: % of readings inside the usual target range (70 - 180 mg/dl)
+    inRangePercent: count === 0 ? null : Math.round((inRange / count) * 100),
   };
 
   // The daily report also lists each reading with its slot

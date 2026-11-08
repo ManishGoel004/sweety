@@ -1,5 +1,6 @@
 import { SLOTS } from '../constants';
 import { formatDate } from '../utils';
+import StatusBadge from './StatusBadge';
 
 export default function ReadingList({ readings, onEdit, onDelete }) {
   if (readings.length === 0) {
@@ -14,6 +15,7 @@ export default function ReadingList({ readings, onEdit, onDelete }) {
             <th>Date</th>
             <th>Time slot</th>
             <th>Value (mg/dl)</th>
+            <th>Status</th>
             <th aria-label="Actions"></th>
           </tr>
         </thead>
@@ -23,6 +25,9 @@ export default function ReadingList({ readings, onEdit, onDelete }) {
               <td>{formatDate(r.date)}</td>
               <td>{SLOTS[r.slot]}</td>
               <td>{r.value}</td>
+              <td>
+                <StatusBadge value={r.value} />
+              </td>
               <td className="actions">
                 <button className="btn-link" onClick={() => onEdit(r)}>
                   Edit

@@ -3,6 +3,7 @@ const db = require('../db');
 const requireAuth = require('../middleware/auth');
 const { HttpError } = require('../middleware/errorHandler');
 const { validateReadingInput, checkDayRules } = require('../validation/readingValidation');
+const { SLOTS, getStatus } = require('../constants');
 
 const router = express.Router();
 
@@ -70,6 +71,23 @@ router.get('/', async (req, res) => {
     total,
     totalPages: Math.max(1, Math.ceil(total / limit)),
   });
+});
+
+// GET /api/readings/export.csv - download all my readings as a CSV file
+router.get('/export.csv', async (req, res) => {
+  const result = await db.query(
+    `SELECT reading_date AS date, slot, value FROM readings WHERE user_id = $1 ${ORDER_BY}`,
+    [req.user.id]
+  );
+
+  const lines = ['Date,Time slot,Value (mg/dl),Status'];
+  for (const r of result.rows) {
+    lines.push(`${r.date},${SLOTS[r.slot]},${r.value},${getStatus(r.value)}`);
+  }
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="sweety-readings.csv"');
+  res.send(lines.join('\n'));
 });
 
 // POST /api/readings

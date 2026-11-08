@@ -5,6 +5,7 @@ export default function StatsCard({ report }) {
     { label: 'Lowest', value: report.lowest, unit: 'mg/dl' },
     { label: 'Average', value: report.average?.toFixed(1), unit: 'mg/dl' },
     { label: 'Readings', value: report.count, unit: '' },
+    { label: 'In range (70–180)', value: report.inRangePercent, unit: '%' },
   ];
 
   return (

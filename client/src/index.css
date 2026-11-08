@@ -250,7 +250,7 @@ td.actions .btn-link + .btn-link {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   margin: 12px 0 20px;
 }
@@ -277,6 +277,41 @@ td.actions .btn-link + .btn-link {
   .stats {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.badge-low {
+  background: #fff4e5;
+  color: #b54708;
+}
+.badge-normal {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.badge-high {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.section-header h2 {
+  margin-bottom: 0;
+}
+.section-header .btn {
+  margin-top: 0;
 }
 
 .chart-note {

@@ -13,4 +13,23 @@ const MIN_VALUE = 40;
 const MAX_VALUE = 600;
 const MAX_READINGS_PER_DAY = 4;
 
-module.exports = { SLOTS, SLOT_KEYS, MIN_VALUE, MAX_VALUE, MAX_READINGS_PER_DAY };
+// Usual target range (general guideline, not medical advice)
+const TARGET_LOW = 70;
+const TARGET_HIGH = 180;
+
+function getStatus(value) {
+  if (value < TARGET_LOW) return 'Low';
+  if (value > TARGET_HIGH) return 'High';
+  return 'Normal';
+}
+
+module.exports = {
+  SLOTS,
+  SLOT_KEYS,
+  MIN_VALUE,
+  MAX_VALUE,
+  MAX_READINGS_PER_DAY,
+  TARGET_LOW,
+  TARGET_HIGH,
+  getStatus,
+};

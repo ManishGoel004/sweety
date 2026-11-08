@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api, { getErrorMessage } from '../api';
 import StatsCard from '../components/StatsCard';
 import MonthChart from '../components/MonthChart';
+import StatusBadge from '../components/StatusBadge';
 import { SLOTS } from '../constants';
 import { formatDate, todayString } from '../utils';
 
@@ -92,6 +93,7 @@ export default function Reports() {
                         <tr>
                           <th>Time slot</th>
                           <th>Value (mg/dl)</th>
+                          <th>Status</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -99,6 +101,9 @@ export default function Reports() {
                           <tr key={r.id}>
                             <td>{SLOTS[r.slot]}</td>
                             <td>{r.value}</td>
+                            <td>
+                              <StatusBadge value={r.value} />
+                            </td>
                           </tr>
                         ))}
                       </tbody>

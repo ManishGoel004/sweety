@@ -72,6 +72,22 @@ export default function Readings() {
     }
   }
 
+  // The export needs the login token, so we download it with axios
+  // and then let the browser save it as a file
+  async function handleExport() {
+    try {
+      const { data } = await api.get('/readings/export.csv', { responseType: 'blob' });
+      const url = URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'sweety-readings.csv';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  }
+
   function startEdit(reading) {
     setMessage('');
     setEditing(reading);
@@ -88,9 +104,16 @@ export default function Readings() {
       )}
 
       <section className="card">
-        <h2>
-          My readings {total > 0 && <span className="muted">({total})</span>}
-        </h2>
+        <div className="section-header">
+          <h2>
+            My readings {total > 0 && <span className="muted">({total})</span>}
+          </h2>
+          {total > 0 && (
+            <button className="btn btn-secondary" onClick={handleExport}>
+              ⬇ Export CSV
+            </button>
+          )}
+        </div>
         {message && <p className="success" role="status">{message}</p>}
         {error && <p className="error" role="alert">{error}</p>}
         {loading ? (

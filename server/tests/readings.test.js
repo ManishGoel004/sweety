@@ -82,6 +82,30 @@ describe('pagination', () => {
   });
 });
 
+describe('CSV export', () => {
+  test('downloads my readings with a status column', async () => {
+    await addReading({ date: DAY, slot: 'morning_fasting', value: 65 });
+    await addReading({ date: DAY, slot: 'after_lunch', value: 150 });
+    await addReading({ date: DAY, slot: 'after_dinner', value: 210 });
+
+    const res = await request(app).get('/api/readings/export.csv').set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/text\/csv/);
+    expect(res.text.split('\n')).toEqual([
+      'Date,Time slot,Value (mg/dl),Status',
+      `${DAY},Morning (fasting),65,Low`,
+      `${DAY},After lunch,150,Normal`,
+      `${DAY},After dinner,210,High`,
+    ]);
+  });
+
+  test('requires login', async () => {
+    const res = await request(app).get('/api/readings/export.csv');
+    expect(res.status).toBe(401);
+  });
+});
+
 describe('users only see their own readings', () => {
   test('another user cannot list, edit or delete my reading', async () => {
     const mine = await addReading({ date: DAY, slot: 'morning_fasting', value: 100 });

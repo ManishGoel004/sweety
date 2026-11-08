@@ -48,6 +48,12 @@ test('daily report: stats + readings listed in slot order', async () => {
   ]);
 });
 
+test('monthly report: % of readings in the 70-180 range', async () => {
+  // September: 90 (in range) and 200 (high) -> 50%
+  const res = await getReport('monthly', '2026-10-15');
+  expect(res.body.inRangePercent).toBe(50);
+});
+
 test('month-to-date report: 1 Oct to the selected date only', async () => {
   const res = await getReport('mtd', '2026-10-15');
 
@@ -70,7 +76,7 @@ test('monthly report: the whole previous month', async () => {
 test('empty report returns count 0 and null stats', async () => {
   const res = await getReport('daily', '2026-08-01');
 
-  expect(res.body).toMatchObject({ count: 0, highest: null, lowest: null, average: null });
+  expect(res.body).toMatchObject({ count: 0, highest: null, lowest: null, average: null, inRangePercent: null });
   expect(res.body.readings).toEqual([]);
 });
 
