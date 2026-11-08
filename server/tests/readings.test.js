@@ -40,6 +40,48 @@ describe('readings CRUD', () => {
   });
 });
 
+describe('pagination', () => {
+  const list = (query = '') =>
+    request(app).get(`/api/readings${query}`).set('Authorization', `Bearer ${token}`);
+
+  beforeEach(async () => {
+    // 5 days x 1 reading = 5 readings, 2026-01-01 .. 2026-01-05
+    for (let day = 1; day <= 5; day++) {
+      await addReading({ date: `2026-01-0${day}`, slot: 'morning_fasting', value: 100 + day });
+    }
+  });
+
+  test('defaults to page 1 with 20 per page', async () => {
+    const res = await list();
+    expect(res.body).toMatchObject({ page: 1, limit: 20, total: 5, totalPages: 1 });
+    expect(res.body.data).toHaveLength(5);
+  });
+
+  test('returns the requested page, newest first', async () => {
+    const page1 = await list('?page=1&limit=2');
+    const page3 = await list('?page=3&limit=2');
+
+    expect(page1.body.data.map((r) => r.date)).toEqual(['2026-01-05', '2026-01-04']);
+    expect(page3.body.data.map((r) => r.date)).toEqual(['2026-01-01']);
+    expect(page3.body).toMatchObject({ page: 3, limit: 2, total: 5, totalPages: 3 });
+  });
+
+  test('a page after the last one is empty', async () => {
+    const res = await list('?page=9&limit=2');
+    expect(res.body.data).toEqual([]);
+  });
+
+  test('caps limit at 100', async () => {
+    const res = await list('?limit=1000');
+    expect(res.body.limit).toBe(100);
+  });
+
+  test.each(['?page=0', '?page=abc', '?limit=-5', '?page=1.5'])('rejects %s', async (query) => {
+    const res = await list(query);
+    expect(res.status).toBe(400);
+  });
+});
+
 describe('users only see their own readings', () => {
   test('another user cannot list, edit or delete my reading', async () => {
     const mine = await addReading({ date: DAY, slot: 'morning_fasting', value: 100 });

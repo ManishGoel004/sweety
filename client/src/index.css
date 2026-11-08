@@ -201,6 +201,17 @@ td.actions .btn-link + .btn-link {
   padding: 24px 0;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+.pagination .btn {
+  margin-top: 0;
+}
+
 /* Reports */
 .report-controls {
   display: flex;

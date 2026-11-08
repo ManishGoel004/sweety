@@ -34,13 +34,42 @@ function parseId(rawId) {
   return id;
 }
 
-// GET /api/readings - only the logged-in user's readings
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
+
+// Reads ?page= and ?limit= (whole numbers from 1), using defaults when missing
+function parsePagination(query) {
+  const page = query.page === undefined ? 1 : Number(query.page);
+  const limit = query.limit === undefined ? DEFAULT_LIMIT : Number(query.limit);
+
+  if (!Number.isInteger(page) || page < 1 || !Number.isInteger(limit) || limit < 1) {
+    throw new HttpError(400, 'page and limit must be whole numbers of 1 or more.');
+  }
+  return { page, limit: Math.min(limit, MAX_LIMIT) };
+}
+
+// GET /api/readings?page=1&limit=20 - only the logged-in user's readings, newest first
 router.get('/', async (req, res) => {
-  const result = await db.query(
-    `SELECT ${COLUMNS} FROM readings WHERE user_id = $1 ${ORDER_BY}`,
-    [req.user.id]
-  );
-  res.json({ data: result.rows });
+  const { page, limit } = parsePagination(req.query);
+  const offset = (page - 1) * limit;
+
+  const [rows, count] = await Promise.all([
+    db.query(`SELECT ${COLUMNS} FROM readings WHERE user_id = $1 ${ORDER_BY} LIMIT $2 OFFSET $3`, [
+      req.user.id,
+      limit,
+      offset,
+    ]),
+    db.query('SELECT COUNT(*)::int AS total FROM readings WHERE user_id = $1', [req.user.id]),
+  ]);
+
+  const total = count.rows[0].total;
+  res.json({
+    data: rows.rows,
+    page,
+    limit,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / limit)),
+  });
 });
 
 // POST /api/readings
